@@ -12,7 +12,7 @@ import numpy as np
 import os
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-torch.set_default_device('cpu')
+torch.set_default_device('cuda')
 
 
 

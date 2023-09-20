@@ -1,0 +1,6 @@
+matplotlib==3.7.1
+numpy==1.24.1
+PyQt5==5.15.7
+torch --index-url https://download.pytorch.org/whl/cu117
+
+

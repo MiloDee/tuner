@@ -13,7 +13,7 @@ from PyQt5.QtGui import QPainter, QColor, QBrush, QPen
 import time
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-torch.set_default_device('cpu')
+torch.set_default_device('cuda')
 
 class Slider(QWidget):
     def __init__(self, minimum, maximum, name, parent=None):
