@@ -44,7 +44,7 @@ class Narm:
         self.yt = torch.tensor(0.5)
     def setIC(self):
         self.vars = torch.tensor(self.thetas)
-        
+
     def setVars(self,X):
         self.thetas = X.clone()
         
@@ -109,6 +109,7 @@ class SimplePlane:
                                   [self.rhoA],
                                   [self.rhoL]])
         
+        
     def setParams(self):
        self.g = torch.tensor(-9.8,requires_grad=True)
        self.V_inf = torch.tensor(10.0,requires_grad=True)
@@ -158,13 +159,13 @@ class SimplePlane:
         self.setIC()
 
                     #   name              wgt      lower      upper
-        self.cfg =   [['Area Wing',      0.25,   2.27e-02,   0.0377],
-                      ['Area Tail',      0.25,   1.00e-04,   0.0039],
+        self.cfg =   [['Area Wing',      0.0,   2.27e-02,   0.0377],
+                      ['Area Tail',      0.0,   1.00e-04,   0.0039],
                       ['Pos Wing',       0.00,  -1.06e-01,   0.1438],
                       ['Pos Tail',       0.00,   0.0,        0.6000],
                       ['Pos Nose',       0.00,  -0.25,       0.0000],
-                      ['\u03B1 Wing',    0.25,  -1.0e-1,   1.0e-1],
-                      ['\u03B1 Tail',    0.25,  -1.0e-1,   1.0e-1],
+                      ['\u03B1 Wing',    0.0,  -1.0e-1,   2.0e-1],
+                      ['\u03B1 Tail',    0.0,  -2.0e-1,   1.0e-1],
                       ['Mass Nose',      0.00,   2.00e-03,   0.0420],
                       ['\u03C1 Area',    0.00,   5.00e-02,   0.9500],
                       ['\u03C1 Length',  0.00,   1.00e-03,   0.0190]]
