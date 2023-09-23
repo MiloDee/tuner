@@ -13,7 +13,7 @@ from PyQt5.QtGui import QPainter, QColor, QBrush, QPen
 import time
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-torch.set_default_device('cpu')
+torch.set_default_device('cuda')
 
 class Slider(QWidget):
     def __init__(self, minimum, maximum, name, parent=None):
@@ -54,7 +54,7 @@ class SimpleToggle(QWidget):
         self._margin = 3
         self._bg_color = QColor(100, 100, 100)
         self._circle_color = QColor(255, 255, 255)
-        self._is_toggled = False
+        self._is_toggled = True
         self._update_position()
 
     def _update_position(self):
@@ -93,19 +93,18 @@ class Tuner(QWidget):
         self.TunableEntity.forward(self.TunableEntity.vars)
         self.UIsetup()
         self.TunerSetup()
+        self.startFunction()
         
     def createButtons(self):
-        btn0 = QPushButton('Start', self)
-        btn0.move(0, 0)
-        btn0.clicked.connect(self.startFunction)
         
         btn1 = QPushButton('Stop', self)
-        btn1.move(100, 0)
+        btn1.move(0, 0)
         btn1.clicked.connect(self.stopFunction)
         
         btn2 = QPushButton('Reset', self)
-        btn2.move(200, 0)
+        btn2.move(100, 0)
         btn2.clicked.connect(self.resetFunction)
+        
     def TunerSetup(self):
         self.gamma2 = 1.0
         
@@ -115,12 +114,10 @@ class Tuner(QWidget):
             
     def createTimers(self):
         self.timer.timeout.connect(self.AppUpdate)
-        self.timer1.timeout.connect(self.TunableEntity.reset_vars)
 
     def startFunction(self):
         # Start the timer to call the connected function every 1000 milliseconds (1 second)
         self.timer.start(0)
-        self.timer1.start(100)   
 
     def resetFunction(self):
         self.TunableEntity.reset()
@@ -132,7 +129,6 @@ class Tuner(QWidget):
         self.mainLayout = QVBoxLayout(self)  # This is the main layout
         
         self.timer = QTimer(self)
-        self.timer1 = QTimer(self)
         
         self.num_sliders = self.idx_ctrl_ranges.shape[0]
         self.w = []
@@ -154,15 +150,36 @@ class Tuner(QWidget):
             
             # Add the horizontal layout (containing slider and toggle) to the main layout.
             self.mainLayout.addLayout(h_layout)
+            
+            
+    def ForwardUpdate(self,s):
+                
+            for i in range(self.ctrl.shape[0]):
+                    self.TunableEntity.vars[self.ctrl[i]] = torch.tensor(s[i],requires_grad=True)
+            
+            self.R = self.TunableEntity.forward(self.TunableEntity.vars)
         
     def NewtonUpdate(self,s):
             
 
-        for i in range(self.ctrl.shape[0]):
-            self.TunableEntity.vars[self.ctrl[i]] = torch.tensor(s[i],requires_grad=True)
+        
+        
+        
+        if self.ctrl.shape[0] == 0:
+            for i in range(self.TunableEntity.vars.shape[0]):
+                self.TunableEntity.vars[i] = torch.tensor(self.TunableEntity.vars[i],requires_grad=True)
+            
+        else:
+            for i in range(self.ctrl.shape[0]):
+                self.TunableEntity.vars[self.ctrl[i]] = torch.tensor(s[i],requires_grad=True)
+        
         self.R = self.TunableEntity.forward(self.TunableEntity.vars)
         
+     
+        
         self.J = torch.autograd.grad(self.R, self.TunableEntity.vars,  torch.eye(self.R.numel()), is_grads_batched= True, allow_unused=False)[0].view(self.R.numel(),-1)
+        
+     
         
         # self.J_reduced = self.J[:,self.idx]
         self.J_reduced = self.J[:-1,self.idx]
@@ -182,12 +199,15 @@ class Tuner(QWidget):
         self.DX_P = torch.matmul(self.J_reduced.permute([1,0]),self.M2)
         
         
-        self.DX_S2 = torch.matmul(self.Z, 0.0*self.grads.reshape(-1,1))
+        
+        
+        self.DX_S2 = torch.matmul(self.Z, 0.1*self.grads.reshape(-1,1))
         
         self.DX_S = torch.matmul(self.Z, self.weights[self.idx].reshape(-1,1)*self.vars_reduced)
 
 
         self.TunableEntity.vars[self.idx] -= self.DX_P + self.DX_S + self.DX_S2
+        
         
         
     def UIsetup(self):
@@ -234,7 +254,13 @@ class Tuner(QWidget):
         now = time.perf_counter()
         
         self.UIhandler()
-        self.NewtonUpdate(self.s)
+        
+        if len(self.s) == self.num_sliders:
+            self.ForwardUpdate(self.s)
+         
+        else:
+          
+            self.NewtonUpdate(self.s)
         self.TunableEntity.plot_update()
         
         print(self.TunableEntity.res)

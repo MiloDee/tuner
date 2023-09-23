@@ -45,9 +45,6 @@ class Narm:
     def setIC(self):
         self.vars = torch.tensor(self.thetas)
         
-    def reset_vars(self):
-        self.vars = torch.tensor(self.vars)
-        
     def setVars(self,X):
         self.thetas = X.clone()
         
@@ -111,9 +108,6 @@ class SimplePlane:
                                   [self.m3],
                                   [self.rhoA],
                                   [self.rhoL]])
-        
-    def reset_vars(self):
-        self.vars = torch.tensor(self.vars)
         
     def setParams(self):
        self.g = torch.tensor(-9.8,requires_grad=True)
