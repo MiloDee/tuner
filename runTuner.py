@@ -8,7 +8,7 @@ Created on Mon Aug 21 01:37:08 2023
 from tunables import Narm, SimplePlane
 from ventopt import Tuner
 
-tuner = Tuner(SimplePlane())
+tuner = Tuner(Narm(11))
 tuner.show()
 #%%
 

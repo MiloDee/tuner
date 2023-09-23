@@ -13,7 +13,7 @@ from PyQt5.QtGui import QPainter, QColor, QBrush, QPen
 import time
 
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-torch.set_default_device('cuda')
+torch.set_default_device('cpu')
 
 class Slider(QWidget):
     def __init__(self, minimum, maximum, name, parent=None):
@@ -201,7 +201,7 @@ class Tuner(QWidget):
         
         
         
-        self.DX_S2 = torch.matmul(self.Z, 0.1*self.grads.reshape(-1,1))
+        self.DX_S2 = torch.matmul(self.Z, 0.0*self.grads.reshape(-1,1))
         
         self.DX_S = torch.matmul(self.Z, self.weights[self.idx].reshape(-1,1)*self.vars_reduced)
 

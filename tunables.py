@@ -14,7 +14,7 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 torch.set_default_device('cpu')
 
-
+plt.style.use('dark_background')
 
 class Narm:
     def __init__(self,N):
